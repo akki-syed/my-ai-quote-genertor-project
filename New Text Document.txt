@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Quote & Caption Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      color: #f1f1f1;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 2rem;
+      width: 90%;
+      max-width: 650px;
+      text-align: center;
+      animation: fadeIn 2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #00c9ff, #92fe9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    select, input[type="text"] {
+      width: 80%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus, select:focus {
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #fc466b, #3f5efb);
+      color: white;
+      cursor: pointer;
+      transition: background 0.4s, transform 0.2s;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #3f5efb, #fc466b);
+      transform: scale(1.05);
+    }
+
+    .output {
+      margin-top: 1.5rem;
+      font-style: italic;
+      opacity: 0;
+      transition: opacity 1s;
+      min-height: 60px;
+    }
+
+    .output.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Quote & Caption Generator</h1>
+    <select id="typeSelect">
+      <option value="quote">Quote</option>
+      <option value="caption">Caption</option>
+    </select>
+    <br />
+    <input type="text" id="topicInput" placeholder="Enter a topic (e.g., love, success, Gandhi)" />
+    <br />
+    <button onclick="generateOutput()">Generate</button>
+    <div class="output" id="quoteOutput"></div>
+  </div>
+
+  <script>
+    async function generateOutput() {
+      const topic = document.getElementById('topicInput').value.trim();
+      const type = document.getElementById('typeSelect').value;
+      const output = document.getElementById('quoteOutput');
+
+      if (!topic) {
+        output.textContent = "Please enter a topic.";
+        output.classList.add('show');
+        return;
+      }
+
+      const prompt = `Give me a unique and inspiring ${type} about ${topic}`;
+
+      output.textContent = "Generating...";
+      output.classList.add('show');
+
+      try {
+        const response = await fetch("http://localhost:5000/generate", {
+   // Replace with your backend API endpoint
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            topic: topic,
+            type: type,
+          })
+        });
+
+        const data = await response.json();
+        if (data.text) {
+          output.textContent = data.text;
+        } else {
+          output.textContent = "No content was returned. Try another topic.";
+        }
+      } catch (error) {
+        output.textContent = "Sorry, something went wrong while generating. Please try again.";
+      }
+    }
+  </script>
+</body>
+</html>
